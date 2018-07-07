@@ -1,0 +1,18 @@
+t.capitalize()
+首字母大写
+t.split()
+以空格分隔
+t.find()
+首字母所处index.若不存在,返回-1.
+t.replace('a','b')
+替换所有a至b
+t.strip('a')
+删除特定leading or lagging字符
+
+import re
+dt = re.compile("'[0-9/:\s]+'") #datetime
+result = dt.findall(series)
+from datetime import datetime
+pydt = datetime.strptime(result[0].replace("'",""), '%m/%d/%Y %H:%M:%S')
+pydt
+print(pydt)

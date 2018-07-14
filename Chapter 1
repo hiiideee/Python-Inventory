@@ -18,12 +18,129 @@ pydt
 print(pydt)
  将txt文件中的时间转化为datetime格式
 
+-----------------------------------------------------------------------------------------------
+
 tuple
- 具有index, 无法改变
+ 具有index, 无法改变: t =(1, 2.5, 'data')
 t.count()
  计出现次数
 t.index()
  返回其index
 
 list
+ 具有index, 可改变t, 可加减: l = [1, 1.25, 'data', [1, 2]]
+list(t) 
+ 将tuple转化为list
+l.append(?)
+ 在末尾处添加
+l.extend([?, ?, ?])
+ 在末尾处添加一列element
+l.insert(number, ?)
+ 在index = number前插入
+l.remove(?)
+ 删除第一次出现的
+l.pop(number)
+ 删除index = number处, 并将其return
+del l[?]
+ 根据index删除
+l[a:b]
+ 第a+1个至第b个, list的index标在各格之间
  
+dict
+ 字典, 可更改, 通过key, 无序, 无法分组: d = {'Name':'Yo', 'Country':'Germany', 'Age':60}
+d.keys()
+ 以dict_keys显示keys
+d.values()
+ 以dict_values显示keys
+d.items()
+ 以dict_items显示keys
+
+set
+ 无序, 不同element仅出现一次: s = set(['u', 'd', 'ud', 'd', 'du']) ---> {'u', 'd', 'ud', 'du'}
+            并自动以字典顺序排列 t = set(['d', 'dd', 'ud', 'du']) 
+s.union(t)
+ 并集
+s.intersection(t)
+ 交集
+s.difference(t)
+ 在s中但不在t中
+s.symmetric_difference(t)
+ 在s或t中但不在其交集中
+Application:
+from random import randint
+l = [randint(0, 10) for i in range(1000)]
+ 1000个0~10的随机数
+s = set(l)
+
+-----------------------------------------------------------------------------------------------
+
+array {list}
+v = [1, 2, 3]
+m = [v, v, v]
+m ---> [[1, 2, 3], [1, 2, 3], [1, 2, 3]]
+v[0] = 3
+m ---> [[3, 2, 3], [3, 2, 3], [3, 2, 3]]
+
+from copy import deepcopy
+v = [1, 2, 3]
+m = 3 * [deepcopy(v), ]
+m ---> [[1, 2, 3], [1, 2, 3], [1, 2, 3]]
+v[0] = 3
+m ---> [[1, 2, 3], [1, 2, 3], [1, 2, 3]]
+ deepcopy在复制时将对象复制为一个独立的新对象, 故不受原对象变化的影响
+
+import numpy as np
+a = np.array([1, 2, 3, 4])
+ 类型为numpy.ndarray
+a[:?]
+ 构建array, 其中每一行为0:?的element
+a.sum()
+ 所有element的和
+a.std()
+ 所有element的标准差
+a.cumsum()
+ array的每一行为原array的cumulative sum
+a * ? / a ** ? / np.sqrt(a)
+ 每个elemtnt各自进行乘法, 平方, 开方
+b = np.array([a, a * 2])
+ 构建一个2 * 4的矩阵
+b[0]
+ 显示第一行
+b[0,2]
+ 显示第一行第三列
+b.sum(axis = 0)
+ 每一个第0维度相加, 该维度消失
+b.sum(axis = 1)
+ 每一个第1维度相加, 该维度消失
+
+c = np.zeros((2, 3, 4), dtype = 'i', order = 'C') / or np.ones()
+ 1. 维度 2. np.array特殊的data type,表示32位int 3.C-like or F-like(Colume-wise)
+d = np.ones_like(c, dtype = 'f', order = 'F')
+ 128位float
+
+dt = np.dtype([('Name', 'S10'), ('Age', 'i4'), ('Height', 'f'), ('Child', 'i4', 2)])
+s = np.array([('Smith', 45, 1.83, [0, 1]), ('Jones', 53, 1.76, [2, 2])], dtype = dt)
+ 每一行, 对应的element有对应的type规定
+s['Name']
+ 显示所有的Name和其type
+s['Height'].mean()
+ 显示所有Height的均值
+s[0]['Age']
+ 显示第1行的age
+ 
+-----------------------------------------------------------------------------------------------
+
+r = np.random.standard_normal((n, m))
+s = np.random.standard_normal((n, m))
+ n行m列的standard normal random number
+r + s
+2 * r + 3
+ element-wise
+np.shape(?)
+ 表示这个矩阵的各维度的array数
+
+
+
+
+
+

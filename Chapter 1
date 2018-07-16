@@ -137,10 +137,126 @@ r + s
 2 * r + 3
  element-wise
 np.shape(?)
- 表示这个矩阵的各维度的array数
+ 表示这个矩阵的各维度的array
+r.transpose()
+ 转置
+ 方程中都是element-wise
+ 
+ np.linespace(a, b, c) # c代表个数
+ np.arange(a, b, c) # c代表步长
+ na, nb = np.meshgrid(a, b,..., xj, False, True)
+  xj(笛卡尔) / ij(矩阵) False / True(返回稀疏矩阵) True / False(返回原始图像节省内存)
+  output 为 ndarray.
+  a作为行被复制b次
+  b作为行被复制a次
+  
+ ---------------------------------------------------------------------------------------------
+ 
+Visualization
+import numpy as np
+import matplotlib.pyplot as plt
+ 
+np.random.seed(1000)
+y = np.random.standard_normal(20)
+ 
+plt.plot(y)
+plt.show()
+plt.plot(y.cumsum())
+plt.show()
+ cumulative sum
+ 
+%matplotlib inline  
+ notebook模式下打开命名窗口
+%pylab inline 
+ ipython模式下打开命名窗口
+ 除非将代码一次执行,否则,无法叠加绘图,因为在这两种模式下,是要有plt出现,图片会立马show出来.
+ 
+-----------------------------------------------------------------------------------------------
 
+Line Style
+'-' # 实线
+'–' # 破折线
+'-.' # 点划线
+':' #虚线
 
+Marker
+'o'	# 圆圈	
+'.' # 点
+'D'	# 菱形	
+'s'	# 正方形
+'h' #	六边形1	
+'*' # 星号
+'H'	# 六边形2	
+'d'	# 小菱形
+'_'	# 水平线	
+'v' #	一角朝下的三角形
+'8' #	八边形	
+'<'	# 一角朝左的三角形
+'p'	# 五边形	
+'>' # 一角朝右的三角形
+','	# 像素	
+'^' #	一角朝上的三角形
+'+'	# 加号	
+'\'	# 竖线
+'x'	# X
 
+Coler
+b # 蓝
+g # 绿
+r #	红
+y #	黄
+c #	青
+k #	黑	 
+m #	洋红
+w #	白
+or
+color = (a, b, c) a,b,c ∈[0, 1]
 
+Background Color
+subplot(where, axisbg=(a, b, c) #111
 
+plt.axis([xmin, xmax, ymin, ymax])
+xlim(a, b)
+ylim(c, d)
+ 坐标范围
+ 
+plt.plot(t, t, 'r--', t, t**2, 'bs', t, t**3, 'g^')
+ 可同时画出多条线
+
+plt.figure(1)
+ 指向图1
+plt.subplot(211)
+ 指向图1的第一张图
+plt.plot([1,2,3])
+
+plt.grid(True)
+ 添加网格
+plt.axis('tight')
+ 坐标变紧
+plt.xlabel('?')
+plt.ylable('?')
+plt.title('?')
+
+plt.plot(y, lw = ?)
+ 线条宽度
+ 
+fig, ax1 = plt.subplots()
+...
+ax2 = ax1.twinx()
+...
+plt.show()
+
+3D
+from mpl_toolkits.mplot3d import Axes3D
+fig = plt.figure(figure.size = (9, 6))
+ax = fig.gca(projection = '3D')
+surf = ax.plot_surface(a, b, c, rstride = 2, cstride = 2, cmap = plt.cm.coolwarm, linewidth = 0.5, antialiased = True)
+ax.set_xlabel('?')
+ax.set_ylabel('?')
+ax.set_zlabel('?')
+ax.grid(True)
+fig.colorbar(surf, shrink = 0.5, aspect = 5)
+plt.show()
+
+--------------------------------------------------------------------------------------------------
 

@@ -142,14 +142,32 @@ r.transpose()
  转置
  方程中都是element-wise
  
- np.linespace(a, b, c) # c代表个数
- np.arange(a, b, c) # c代表步长
- na, nb = np.meshgrid(a, b,..., xj, False, True)
-  xj(笛卡尔) / ij(矩阵) False / True(返回稀疏矩阵) True / False(返回原始图像节省内存)
-  output 为 ndarray.
-  a作为行被复制b次
-  b作为行被复制a次
-  
+np.linespace(a, b, c) # c代表个数
+np.arange(a, b, c) # c代表步长
+na, nb = np.meshgrid(a, b,..., xj, False, True)
+ xj(笛卡尔) / ij(矩阵) False / True(返回稀疏矩阵) True / False(返回原始图像节省内存)
+ output 为 ndarray.
+ a作为行被复制b次
+ b作为行被复制a次
+np.random.randn(a, b)
+ 生成a行b列的随机矩阵standard normal
+np.diff(x) == diff(x,1) 
+ x[:, 1:size(x, 1)] - x[:, size(x, 1) - 1]
+np.tile(x, (a, b))
+ 将矩阵x复制a,b
+w.ravel()
+ 平铺 fast 
+np.fliplr(x)
+ 矩阵左右颠倒
+np.flipud(x)
+ 矩阵上下颠倒
+np.diag(x)
+ 对角向量, 若x为向量, 则为单位对角矩阵 + diag(x)
+np.triu(x)
+ 返回上三角
+np.tril(x)
+ 返回下三角
+ 
  ---------------------------------------------------------------------------------------------
  
 Visualization
@@ -259,4 +277,141 @@ fig.colorbar(surf, shrink = 0.5, aspect = 5)
 plt.show()
 
 --------------------------------------------------------------------------------------------------
+
+if statement1:
+   ??
+   elif statement2:
+   ??
+   elif statement3:
+   ??
+   else:
+   ??
+
+for item in iterable:
+  ???
+ 
+while statement:
+  ???
+ 
+def myfunc(x, y, z = 1.5):
+   if z >= 1:
+     return x
+   else:
+     return y
+
+def fc(x):
+   return x * 2
+ 等于
+lambda x: x * 2
+
+---------------------------------------------------------------------------------------------------
+
+Pandas
+import pandas as pd
+from pandas import Series, DataFrame
+
+Series
+ 一维向量, index = label, 可视为固定长度的有序dict
+obj = pd.Series([1, 2, 2, 2])
+obj.values
+obj.index
+
+obj2 = pd.Series([1, 2, 2], index = ['a', 'b', 'c'])
+ 可根据特定label提取value, 也可根据一组label提取series
+ 
+obj2[obj2 > 0]
+obj2 * 2
+np.exp(obj2)
+
+s = pd.Series(dict)
+s = pd.Series(dict, index = ?)
+ 可自定dict表示顺序或index
+ 
+pd.isnull(obj)
+pd.notnull(obj)
+ 返回Bool Series
+
+Series可通过匹配key来进行运算
+
+obj.name = '?'
+obj.index.name = '?'
+
+DataFrame
+ table包含多列且有序, 且列与列可以不同type, 有row index和column index
+ 
+from a dict:
+frame = pd.DataFrame(dict)
+frame.head()
+ 显示前五行
+pd.DataFrame(dict, column = ['?', ..., '?'])
+pd.DataFrame(dict, column = ['?', ..., '?'], index = ['?', ..., '?'])
+frame.columns
+frame.? == frame['?']
+frame.? = a
+ 则所有行的?均为a， a可为array or series(长度需match, 否则为nah)
+frame.loc['?']
+ 提取某行
+del frame['?']
+ 删除整列
+ 
+若传入的dict为两层, 则外层为列, 内层为行
+pp = {'a' : {1 : 1, 2 : 2}, 'b' : {0 : 0, 1 : 1, 2 : 2}}
+frame = pd.DataFrame(pp)
+
+frame.T
+ 转置
+frame.index.name = '?'
+frame.columns.name = '?'
+frame.values
+ 返回arrays
+
+index在创建后无法更改
+labels = pd.Index(np.arange(3))
+obj = pd.Series([...], index = labels)
+obj2 = obj.reindex(['?', ..., '?'], mehtod = 'ffill') # method default
+
+frame = pd.DataFrame(np.arange(9).reshape((3,3)), index = ..., columns = ...)
+frame2 = frame.reindex(?)
+frame2 =frame.reindex(columns = ?)
+frame.loc[?, ?] #index, columns
+
+obj.drop(?, inplace = True)
+ inplace 可不用return新对象
+ 删除某行
+frame.drop([?, ..., ?])
+frame.drop(?, axis = 1#or axis = 'columns')
+
+---------------------------------------------------------------------------------------------
+
+Class
+
+class Example(object):
+   pass
+
+c = Example()
+
+class Example1(object):
+   def _init_(self, a, b):    #automaticly run when a new instance created
+      self.a = a   #self automatically pass
+      self.b = b
+c = Example1(1, 't')
+c.a
+c.b
+c.a = 100
+c.yoyo = 'yo'
+print c.yoyo
+
+class Example2(object):
+   def _init_(self, a, b):    #automaticly run when a new instance created
+      self.a = a   #self automatically pass
+      self.b = b
+   def addition(self):   #不用传入变量
+      return self.a + self.b
+c.addition()
+
+class Example3(Example1):
+   def addition(self):
+      return self.a + self.b
+c = Example3(2, 3)
+c.addition()
 

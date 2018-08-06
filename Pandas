@@ -1,0 +1,51 @@
+import numpy as np
+import pandas as pd
+
+SERIES------------------------------------------------------------------------------------------------------------------
+s = pd.Series(data, index = index)
+ data: any data type; one-dimensional; could be {dict; ndarray; scalar value}
+  if ndarray:
+   len(index) = 0 or len(index) = len(data)
+  if dict:
+   no index passed; ordered by insertion
+    if pass index, ordered by new index, and create "NaN" for those index not in dict
+   if scalar value:
+    must pass index; the value will be replicated;
+   
+  Property:
+   ndarray-like:
+    s[i]
+     return single value without index
+    s[:3]
+     return slice(with index)
+    s[s > condition]
+     return slice under the condition
+    s[[1, 2, 3]]
+     return slice with index
+    np.exp(s)
+     calculate all the elements
+   dict-like:
+    s['a']
+     return single value by index
+    s['e'] = 1
+     insert new or change
+    'e' in s
+     return Bool
+    s.get('f', default)
+     return value of 'f' or default(if not default, return None)
+    s[1:] + s[:-1]
+     when operation, Seires will automatically align index to value; if there is no index match, return 'NaN' for this index;   
+    s.dropna()
+     delete those 'NaN'
+     
+  Name:
+   s = pd.Series(np.random.randn(5), name = 'something')
+   s.name
+   s1 = s.rename('anything')
+    create new object
+   s1.name
+   
+DATA FRAME-----------------------------------------------------------------------------------------------
+    
+ 
+

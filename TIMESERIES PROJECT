@@ -4,8 +4,10 @@ import matplotlib.pyplot as plt
 import statsmodels.api as sm
 from statsmodels.tsa.arima_model import ARMA
 from statsmodels.tsa.stattools import adfuller
-from sklearn.metrics import mean_squared_error
-
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.preprocessing import PolynomialFeatures
+import statsmodels.stats.diagnostic as ssd
+from sklearn.linear_model import LinearRegression
 
 ### READ DATA ###
 df_level = pd.read_csv('C:\\Users\\molal\\OneDrive\\Public\\TS\\Project\\Sea_Level.csv', index_col = 'Time')
@@ -19,6 +21,7 @@ plt.show()
 ### MISSING VALUE ###
 level = np.array(df_level['GMSL'])
 na_number = sum(np.isnan(level))
+print("There is ", na_number, "missing value in our dataset.")
 
 #NO MISSING VALUE
 if na_number:
@@ -37,16 +40,141 @@ plt.show()
 '''
 
 ### STATIONARY CHECK - ADF TEST ###
-adf_level = adfuller(level, regression = 'ct')
+adf_level = adfuller(level, regression = 'ct') #Constant + Trend ADF TEST
 adf_p_level = round(adf_level[1], 4)
 adf_t_level = round(adf_level[0], 4)
-adf_lag_level = adf_level[4]
+adf_lag_level = adf_level[2]
 
+print("The p value of ADF test is", adf_p_level, ';')
+print("The t value of ADF test is", adf_t_level, ';')
+print("The lags used in ADF test is", adf_lag_level, ';')
 ### PLOT ROLLING / EWMA ###
 
 
 
+### TREND and SEASONALITY ###
+decomposed_level = sm.tsa.seasonal_decompose(level, freq = 12)
+decomposed_figure = decomposed_level.plot()
+plt.show()
 
+###### DECOMPOSE METHOD ######
+###TRAINING SET###
+print("We divide the whole sets into two parts: TRAINING: 0 to 215, TEST: 216 to 265")
+train_level = level[:215]
+test_level = level[216:]
+print(train_level)
+print(test_level)
+
+### TREND and SEASONALITY ###
+decomposed_train_level = sm.tsa.seasonal_decompose(train_level, freq = 12)
+decomposed_figure = decomposed_train_level.plot()
+plt.show()
+
+trend_train_level = decomposed_train_level.trend
+trend_train_level = trend_train_level[~np.isnan(trend_train_level)]
+seasonal_train_level = decomposed_train_level.seasonal
+resid_train_level = decomposed_train_level.resid
+resid_train_level = resid_train_level[~np.isnan(resid_train_level)]
+
+### RESIDUAL STATIONARY ###
+adf_resid_train_level = adfuller(resid_train_level, regression = 'ct')
+adf_p_resid = round(adf_resid_train_level[1], 4)
+adf_t_resid = round(adf_resid_train_level[0], 4)
+adf_lag_resid = adf_resid_train_level[4]
+
+print("The residual is stationary.")
+
+### RESIDUAL AUTOCORRELATION ###
+sm.graphics.tsa.plot_acf(resid_train_level, lags = np.arange(24), alpha = 0.05,use_vlines = True, title = "RESIDUAL AUTOCORRELATION FUNCTION")
+plt.show()
+
+sm.graphics.tsa.plot_pacf(resid_train_level, lags = np.arange(24), alpha = 0.05, use_vlines = True, title = "RESIDUAL  PARTIAL AUTOCORRELATION FUNCTION")
+plt.show()
+
+### LjungBox Test / BG test for RESIDUALS ###
+print("The p value for LB TEST:",ssd.acorr_ljungbox(resid_train_level, 12)[1])
+print("The residuals has no autocorrelaton, and we consider the residuals as white noise.")
+
+### Calculate Mean and Variance ###
+resid_std = np.std(resid_train_level)
+resid_mean = np.mean(resid_train_level)
+print("The standard deviation of residuals:", round(resid_std, 2), ";")
+print("The mean of residuals:", round(resid_mean, 2), ";")
+
+### TREND SIMULATION ###
+x_poly = np.arange(len(trend_train_level))
+y_poly = np.array(trend_train_level)
+
+regressor = LinearRegression()
+regressor.fit(x_poly[:, np.newaxis], y_poly[:, np.newaxis])
+xx = x_poly
+yy = regressor.predict(xx.reshape(xx.shape[0], 1))
+
+x_poly = x_poly[:, np.newaxis]
+y_poly = y_poly[:, np.newaxis]
+
+order_trend = list(np.arange(10)[2:])
+r_2_total = []
+mse_total = []
+
+for i in order_trend:
+    featurizer = PolynomialFeatures(degree = i)
+    x_poly_fit = featurizer.fit_transform(x_poly)
+    regressor_fit = LinearRegression()
+    regressor_fit.fit(x_poly_fit, y_poly)
+    xx_fit = featurizer.transform(xx.reshape(xx.shape[0], 1))
+    r_2 = r2_score(y_poly, regressor_fit.predict(xx_fit))
+    r_2_total.append(r_2)
+    mse = mean_squared_error(y_poly, regressor_fit.predict(xx_fit))
+    mse_total.append(mse)
+print("The R_2 score for polynomials:")
+print(r_2_total)
+print("The MSE for polynomials:")
+print(mse_total)
+
+### SELECT 3 4 5 6, TAKE 5 FOR EXAMPLE ###
+
+order_trend = 2
+xx = np.arange(len(level))
+featurizer = PolynomialFeatures(degree = order_trend)
+x_poly_fit = featurizer.fit_transform(x_poly)
+regressor_fit = LinearRegression()
+regressor_fit.fit(x_poly_fit, y_poly)
+xx_fit = featurizer.transform(xx.reshape(xx.shape[0], 1))
+predited_trend = regressor_fit.predict(xx_fit)
+
+def trend(t):
+    return predited_trend[t]
+
+### SEASONALITY ###
+print(seasonal_train_level)
+predited_seasonal = [0] * 12
+
+for i in range(len(seasonal_train_level)):
+    posi = i % 12
+    time = (i - posi) / 12 + 1
+    predited_seasonal[posi] = predited_seasonal[posi] * (time - 1) / time + seasonal_train_level[i] / time
+print(predited_seasonal)
+def seasonal(t):
+    return predited_seasonal[t % 12]
+
+###PREDICTION ###
+test_level
+print(test_level)
+predited_level = []
+predited_s = []
+predited_t = []
+time = range(len(level))[216:]
+for i in time:
+    predited_level.append(seasonal(i) + trend(i) + np.random.normal(loc = resid_mean, scale = resid_std))
+    predited_s.append(seasonal(i))
+    predited_t.append(trend(i))
+
+plt.plot(time, predited_level, 'r-')
+plt.plot(time, test_level, 'g-')
+plt.show()
+
+###### DIFFERENCE METHOD ######
 ### LOG and DIFF ###
 diff_level = np.diff(level, 1)
 
@@ -54,32 +182,21 @@ diff_level = np.diff(level, 1)
 adf_diff_level = adfuller(diff_level, regression = 'ct')
 adf_p_diff_level = round(adf_diff_level[1], 4)
 adf_t_diff_level = round(adf_diff_level[0], 4)
-adf_lag_diff_level = adf_diff_level[4]
+adf_lag_diff_level = adf_diff_level[2]
 
-### TREND and SEASONALITY ###
-decomposed_level = sm.tsa.seasonal_decompose(level, freq = 12)
-decomposed_figure = decomposed_level.plot()
-plt.show()
-
-trend_level = decomposed_level.trend
-seasonal_level = decomposed_level.seasonal
-resid_level = decomposed_level.resid
-resid_level = resid_level[~np.isnan(resid_level)]
-
-### RESIDUAL STATIONARY ###
-adf_resid_level = adfuller(resid_level, regression = 'ct')
-adf_p_resid = round(adf_resid_level[1], 4)
-adf_t_resid = round(adf_resid_level[0], 4)
-adf_lag_resid = adf_resid_level[4]
+print("The p value of ADF test for differentiated level is", adf_p_diff_level, ';')
+print("The t value of ADF test for differentiated level is", adf_t_diff_level, ';')
+print("The lags used in ADF test for differentiated level is", adf_lag_diff_level, ';')
 
 ### ACF and PACF ###
-#plot_acf( , lags = , title = " ")
-#plot_pacf( , lags = , title = " ")
+sm.graphics.tsa.plot_acf(level, lags = np.arange(24), alpha = 0.05,use_vlines = True, title = "AUTOCORRELATION FUNCTION")
+plt.show()
 
-### MODEL SELECTION ###
+sm.graphics.tsa.plot_pacf(level, lags = np.arange(24), alpha = 0.05, use_vlines = True, title = "PARTIAL AUTOCORRELATION FUNCTION")
+plt.show()
 
+sm.graphics.tsa.plot_acf(diff_level, lags = np.arange(24), alpha = 0.05, use_vlines = True, title = "AUTOCORRELATION FUNCTION")
+plt.show()
 
-###TRAINING and PREDICTION ###
-
-
-
+sm.graphics.tsa.plot_pacf(diff_level, lags = np.arange(24), alpha = 0.05, use_vlines = True, title = "PARTIAL AUTOCORRELATION FUNCTION")
+plt.show()

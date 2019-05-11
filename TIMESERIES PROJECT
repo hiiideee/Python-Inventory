@@ -1,0 +1,85 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import statsmodels.api as sm
+from statsmodels.tsa.arima_model import ARMA
+from statsmodels.tsa.stattools import adfuller
+from sklearn.metrics import mean_squared_error
+
+
+### READ DATA ###
+df_level = pd.read_csv('C:\\Users\\molal\\OneDrive\\Public\\TS\\Project\\Sea_Level.csv', index_col = 'Time')
+df_level.index = pd.to_datetime(df_level.index)
+
+### ORIGINAL PLOT ###
+df_level['GMSL'].plot()
+plt.title('SEA LEVEL (MONTHLY)')
+plt.show()
+
+### MISSING VALUE ###
+level = np.array(df_level['GMSL'])
+na_number = sum(np.isnan(level))
+
+#NO MISSING VALUE
+if na_number:
+    df_level = df_level.fillna(method='ffill')
+    level = np.array(df_level['GMSL'])
+
+### OUTLIER ###
+
+
+
+### REPLOT ###
+'''
+df_level['GMSL'].plot()
+plt.title('SEA LEVEL (MONTHLY)')
+plt.show()
+'''
+
+### STATIONARY CHECK - ADF TEST ###
+adf_level = adfuller(level, regression = 'ct')
+adf_p_level = round(adf_level[1], 4)
+adf_t_level = round(adf_level[0], 4)
+adf_lag_level = adf_level[4]
+
+### PLOT ROLLING / EWMA ###
+
+
+
+
+### LOG and DIFF ###
+diff_level = np.diff(level, 1)
+
+### ADF TEST ###
+adf_diff_level = adfuller(diff_level, regression = 'ct')
+adf_p_diff_level = round(adf_diff_level[1], 4)
+adf_t_diff_level = round(adf_diff_level[0], 4)
+adf_lag_diff_level = adf_diff_level[4]
+
+### TREND and SEASONALITY ###
+decomposed_level = sm.tsa.seasonal_decompose(level, freq = 12)
+decomposed_figure = decomposed_level.plot()
+plt.show()
+
+trend_level = decomposed_level.trend
+seasonal_level = decomposed_level.seasonal
+resid_level = decomposed_level.resid
+resid_level = resid_level[~np.isnan(resid_level)]
+
+### RESIDUAL STATIONARY ###
+adf_resid_level = adfuller(resid_level, regression = 'ct')
+adf_p_resid = round(adf_resid_level[1], 4)
+adf_t_resid = round(adf_resid_level[0], 4)
+adf_lag_resid = adf_resid_level[4]
+
+### ACF and PACF ###
+#plot_acf( , lags = , title = " ")
+#plot_pacf( , lags = , title = " ")
+
+### MODEL SELECTION ###
+
+
+###TRAINING and PREDICTION ###
+
+
+
